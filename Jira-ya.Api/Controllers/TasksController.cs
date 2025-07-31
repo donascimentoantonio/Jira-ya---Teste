@@ -1,6 +1,5 @@
 using Jira_ya.Application.DTOs;
 using Jira_ya.Application.Services.Interfaces;
-using Jira_ya.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Jira_ya.Api.Controllers
@@ -8,14 +7,6 @@ namespace Jira_ya.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     public class TasksController : ControllerBase
-
-        [HttpPost("{taskId}/assign/{userId}")]
-        public async Task<IActionResult> AssignTask(Guid taskId, Guid userId)
-        {
-            var result = await _taskService.AssignTaskAsync(taskId, userId);
-            if (!result) return NotFound();
-            return NoContent();
-        }
     {
         private readonly ITaskService _taskService;
 
@@ -66,6 +57,14 @@ namespace Jira_ya.Api.Controllers
         {
             var deleted = await _taskService.DeleteAsync(id);
             if (!deleted) return NotFound();
+            return NoContent();
+        }
+
+        [HttpPost("{taskId}/assign/{userId}")]
+        public async Task<IActionResult> AssignTask(Guid taskId, Guid userId)
+        {
+            var result = await _taskService.AssignTaskAsync(taskId, userId);
+            if (!result) return NotFound();
             return NoContent();
         }
     }

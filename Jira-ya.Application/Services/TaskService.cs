@@ -1,22 +1,12 @@
-
-
 using Jira_ya.Application.DTOs;
 using Jira_ya.Application.Services.Interfaces;
 using Jira_ya.Domain.Interfaces;
-using Jira_ya.Domain.Enum;
 
 namespace Jira_ya.Application.Services
 {
     using DomainTask = Jira_ya.Domain.Entities.Task;
 
-    public class TaskService : ITaskService
-        public async Task<bool> AssignTaskAsync(Guid taskId, Guid userId)
-        {
-            var result = await _taskRepository.AssignTaskAsync(taskId, userId);
-            if (result)
-                await _notificationService.NotifyAsync($"Tarefa atribuída ao usuário {userId}", userId);
-            return result;
-        }
+    public class TaskService : ITaskService    
     {
         private readonly ITaskRepository _taskRepository;
         private readonly INotificationService _notificationService;
@@ -123,6 +113,13 @@ namespace Jira_ya.Application.Services
                 Status = t.Status,
                 AssignedUserId = t.AssignedUserId
             });
+        }
+        public async Task<bool> AssignTaskAsync(Guid taskId, Guid userId)
+        {
+            var result = await _taskRepository.AssignTaskAsync(taskId, userId);
+            if (result)
+                await _notificationService.NotifyAsync($"Tarefa atribuída ao usuário {userId}", userId);
+            return result;
         }
     }
 }

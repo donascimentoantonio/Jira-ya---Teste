@@ -8,15 +8,7 @@ namespace Jira_ya.Infrastructure.Persistence
     using System.Threading.Tasks;
     using System.Collections.Generic;
 
-    public class TaskRepository : ITaskRepository
-        public async Task<bool> AssignTaskAsync(Guid taskId, Guid userId)
-        {
-            var task = await context.Tasks.FindAsync(taskId);
-            if (task == null) return false;
-            task.AssignedUserId = userId;
-            await context.SaveChangesAsync();
-            return true;
-        }
+    public class TaskRepository : ITaskRepository       
     {
         private readonly AppDbContext context;
         public TaskRepository(AppDbContext context)
@@ -61,6 +53,15 @@ namespace Jira_ya.Infrastructure.Persistence
                 context.Tasks.Remove(task);
                 await context.SaveChangesAsync();
             }
+        }
+
+        public async Task<bool> AssignTaskAsync(Guid taskId, Guid userId)
+        {
+            var task = await context.Tasks.FindAsync(taskId);
+            if (task == null) return false;
+            task.AssignedUserId = userId;
+            await context.SaveChangesAsync();
+            return true;
         }
     }
 }

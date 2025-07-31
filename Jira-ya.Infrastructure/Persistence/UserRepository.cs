@@ -21,7 +21,7 @@ namespace Jira_ya.Infrastructure.Persistence
 
         public IEnumerable<User> GetAll()
         {
-            return _context.Users.ToList();
+            return [.. _context.Users];
         }
 
         public void Add(User user)
