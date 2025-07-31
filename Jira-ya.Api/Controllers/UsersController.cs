@@ -50,8 +50,13 @@ namespace Jira_ya.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var deleted = await _userService.DeleteAsync(id);
-            if (!deleted) return NotFound();
+            var result = await _userService.DeleteAsync(id);
+            if (!result.Success)
+            {
+                if (result.Error == "Usuário não encontrado.")
+                    return NotFound();
+                return BadRequest(result.Error);
+            }
             return NoContent();
         }
 

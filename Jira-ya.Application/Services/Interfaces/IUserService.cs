@@ -9,7 +9,7 @@ namespace Jira_ya.Application.Services.Interfaces
         Task<UserDto> GetByIdAsync(Guid id);
         Task<Result<UserDto>> CreateAsync(CreateUserRequest dto);
         Task<Result<UserDto>> UpdateAsync(Guid id, CreateUserRequest dto);
-        Task<bool> DeleteAsync(Guid id);
+        Task<Result<bool>> DeleteAsync(Guid id);
         Task<Result<IEnumerable<UserDto>>> CreateRandomUsersAsync(int amount, string userNameMask, string randomKey);
     }
 }

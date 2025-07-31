@@ -70,25 +70,21 @@ namespace Jira_ya.Application.Services
             }
         }
      
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<Result<bool>> DeleteAsync(Guid id)
         {
             var entity = GetUserOrNull(id);
             if (entity == null)
-            {
-                ErrorHandler.HandleException<bool>(new Exception("Usuário não encontrado."), "Usuário não encontrado.");
-                return false;
-            }
+                return Result<bool>.Fail("Usuário não encontrado.");
             try
             {
                 _userRepository.Delete(id);
                 await _notificationService.NotifyAsync($"Usuário removido: {entity.Username}", entity.Id);
+                return Result<bool>.Ok(true);
             }
             catch (Exception ex)
             {
-                ErrorHandler.HandleException<bool>(ex, ErrorMessages.UserDeleteError);
-                return false;
+                return ErrorHandler.HandleException<bool>(ex, ErrorMessages.UserDeleteError);
             }
-            return true;
         }
 
         public async Task<Result<IEnumerable<UserDto>>> CreateRandomUsersAsync(int amount, string userNameMask, string randomKey)
