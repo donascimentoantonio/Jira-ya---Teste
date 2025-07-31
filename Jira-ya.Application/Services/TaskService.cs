@@ -39,10 +39,11 @@ namespace Jira_ya.Application.Services
             if (user == null)
                 return Result<TaskDto>.Fail("Usuário não existe para o guid informado, logo não será possível inserir esta task");
 
-            var entity = _mapper.Map<DomainTask>(dto);
-            entity.Id = Guid.NewGuid();
+            DomainTask entity;
             try
             {
+                entity = _mapper.Map<DomainTask>(dto);
+                entity.Id = Guid.NewGuid();
                 await _taskRepository.AddAsync(entity);
                 await _notificationService.NotifyAsync($"Tarefa criada: {entity.Title}", entity.AssignedUserId);
             }

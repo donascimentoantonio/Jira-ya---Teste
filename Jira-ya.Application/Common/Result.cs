@@ -6,7 +6,7 @@ namespace Jira_ya.Application.Common
         public string Error { get; set; }
         public T Data { get; set; }
 
-        public static Result<T> Ok(T data) => new Result<T> { Success = true, Data = data };
-        public static Result<T> Fail(string error) => new Result<T> { Success = false, Error = error };
+        public static Result<T> Ok(T data) => new() { Success = true, Data = data };
+        public static Result<T> Fail(string error) => new() { Success = false, Error = error };
     }
 }

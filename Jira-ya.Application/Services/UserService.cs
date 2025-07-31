@@ -39,10 +39,10 @@ namespace Jira_ya.Application.Services
 
         public async Task<Result<UserDto>> CreateAsync(CreateUserRequest dto)
         {
-            var entity = _mapper.Map<User>(dto);
-            entity.Id = Guid.NewGuid();
             try
             {
+                var entity = _mapper.Map<User>(dto);
+                entity.Id = Guid.NewGuid();
                 _userRepository.Add(entity);
                 await _notificationService.NotifyAsync($"Usuário criado: {entity.Username}", entity.Id);
                 return Result<UserDto>.Ok(_mapper.Map<UserDto>(entity));
@@ -89,6 +89,10 @@ namespace Jira_ya.Application.Services
 
         public async Task<Result<IEnumerable<UserDto>>> CreateRandomUsersAsync(int amount, string userNameMask, string randomKey)
         {
+
+            if (amount <= 0)
+                return Result<IEnumerable<UserDto>>.Fail("A quantidade de usuários deve ser maior que zero.");
+
             if (string.IsNullOrWhiteSpace(randomKey))
                 return Result<IEnumerable<UserDto>>.Fail("A chave aleatória não pode ser vazia.");
 

@@ -7,7 +7,7 @@ namespace Jira_ya.Application.Domain
         public static Result<object> ValidateTaskExists(object entity)
         {
             if (entity == null)
-                return Result<object>.Fail("Task não encontrada para o id informado.");
+                return Result<object>.Fail("Tarefa não encontrada.");
             return Result<object>.Ok(entity);
         }
 
