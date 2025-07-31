@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jira_ya.Infrastructure.Persistence
 {
-    using DomainTask = Domain.Entities.Task;
+    using DomainTask = Domain.Entities.DomainTask;
 
     public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {

@@ -1,3 +1,4 @@
+using Jira_ya.Application.Common;
 using Jira_ya.Application.DTOs;
 
 namespace Jira_ya.Application.Services.Interfaces
@@ -6,9 +7,9 @@ namespace Jira_ya.Application.Services.Interfaces
     {
         Task<IEnumerable<UserDto>> GetAllAsync();
         Task<UserDto> GetByIdAsync(Guid id);
-        Task<UserDto> CreateAsync(CreateUserRequest dto);
-        Task<UserDto> UpdateAsync(Guid id, CreateUserRequest dto);
+        Task<Result<UserDto>> CreateAsync(CreateUserRequest dto);
+        Task<Result<UserDto>> UpdateAsync(Guid id, CreateUserRequest dto);
         Task<bool> DeleteAsync(Guid id);
-        Task<IEnumerable<UserDto>> CreateRandomUsersAsync(int amount, string userNameMask, string randomKey);
+        Task<Result<IEnumerable<UserDto>>> CreateRandomUsersAsync(int amount, string userNameMask, string randomKey);
     }
 }

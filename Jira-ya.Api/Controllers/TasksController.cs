@@ -31,25 +31,29 @@ namespace Jira_ya.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] TaskDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateTaskRequest dto)
         {
-            var created = await taskService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            var result = await taskService.CreateAsync(dto);
+            if (!result.Success)
+                return BadRequest(new { error = result.Error });
+            return CreatedAtAction(nameof(GetById), new { id = result.Data.Id }, result.Data);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] TaskDto dto)
         {
-            var updated = await taskService.UpdateAsync(id, dto);
-            if (updated == null) return NotFound();
-            return Ok(updated);
+            var result = await taskService.UpdateAsync(id, dto);
+            if (!result.Success)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Data);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var deleted = await taskService.DeleteAsync(id);
-            if (!deleted) return NotFound();
+            var result = await taskService.DeleteAsync(id);
+            if (!result.Success)
+                return BadRequest(new { error = result.Error });
             return NoContent();
         }
 

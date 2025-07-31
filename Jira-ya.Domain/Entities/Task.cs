@@ -2,7 +2,7 @@ using Jira_ya.Domain.Enum;
 
 namespace Jira_ya.Domain.Entities
 {
-    public class Task
+public class DomainTask
     {
         public Guid Id { get; set; }
         public string Title { get; set; }

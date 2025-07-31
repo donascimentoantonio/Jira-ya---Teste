@@ -1,6 +1,6 @@
 namespace Jira_ya.Domain.Interfaces
 {
-    using DomainTask = Entities.Task;
+    using DomainTask = Entities.DomainTask;
     using System.Threading.Tasks;
     using System.Collections.Generic;
     public interface ITaskRepository

@@ -13,6 +13,7 @@ namespace Jira_ya.Api
     {
         public static IServiceCollection AddProjectDependencies(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddAutoMapper(typeof(Jira_ya.Application.Mapping.TaskProfile).Assembly);
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
 
@@ -25,7 +26,7 @@ namespace Jira_ya.Api
             services.AddControllers();
             services.AddFluentValidationAutoValidation();
             services.AddFluentValidationClientsideAdapters();
-            services.AddValidatorsFromAssemblyContaining<Application.Validators.CreateRandomUsersRequestValidator>();
+            services.AddValidatorsFromAssemblyContaining<Application.Validators.User.CreateRandomUsersRequestValidator>();
 
             return services;
         }

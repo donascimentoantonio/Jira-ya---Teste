@@ -2,16 +2,15 @@ using Jira_ya.Domain.Interfaces;
 
 namespace Jira_ya.Infrastructure.Persistence
 {
-    using DomainTask = Jira_ya.Domain.Entities.Task;
+    using DomainTask = Jira_ya.Domain.Entities.DomainTask;
 
     using Microsoft.EntityFrameworkCore;
     using System.Threading.Tasks;
     using System.Collections.Generic;
 
-    public class TaskRepository : ITaskRepository       
+    public class TaskRepository(AppDbContext context) : ITaskRepository       
     {
-        private readonly AppDbContext context;
-        public TaskRepository(AppDbContext context) => this.context = context;
+        private readonly AppDbContext context = context;
 
         public async Task<IEnumerable<DomainTask>> GetTasksByUserIdAsync(Guid userId)
         {

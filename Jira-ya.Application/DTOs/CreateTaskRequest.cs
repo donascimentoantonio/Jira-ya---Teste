@@ -2,9 +2,8 @@ using Jira_ya.Domain.Enum;
 
 namespace Jira_ya.Application.DTOs
 {
-    public class TaskDto
+    public class CreateTaskRequest
     {
-        public Guid Id { get; set; } 
         public string Title { get; set; }
         public string Description { get; set; }
         public DateTime DueDate { get; set; }

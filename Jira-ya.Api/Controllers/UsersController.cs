@@ -28,16 +28,23 @@ namespace Jira_ya.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserRequest dto)
         {
-            var created = await _userService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            var result = await _userService.CreateAsync(dto);
+            if (!result.Success)
+                return BadRequest(result.Error);
+            return CreatedAtAction(nameof(GetById), new { id = result.Data.Id }, result.Data);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] CreateUserRequest dto)
         {
-            var updated = await _userService.UpdateAsync(id, dto);
-            if (updated == null) return NotFound();
-            return Ok(updated);
+            var result = await _userService.UpdateAsync(id, dto);
+            if (!result.Success)
+            {
+                if (result.Error == "Usuário não encontrado.")
+                    return NotFound();
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Data);
         }
 
         [HttpDelete("{id}")]
@@ -52,8 +59,10 @@ namespace Jira_ya.Api.Controllers
         public async Task<IActionResult> CreateRandom([FromBody] CreateRandomUsersRequest request, [FromServices] IConfiguration config)
         {
             var randomKey = config["RandomUserKey"] ?? "RND";
-            var users = await _userService.CreateRandomUsersAsync(request.Amount, request.UserNameMask, randomKey);
-            return Ok(users);
+            var result = await _userService.CreateRandomUsersAsync(request.Amount, request.UserNameMask, randomKey);
+            if (!result.Success)
+                return BadRequest(result.Error);
+            return Ok(result.Data);
         }
     }
 }
