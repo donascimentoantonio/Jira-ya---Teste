@@ -6,26 +6,19 @@ namespace Jira_ya.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TasksController : ControllerBase
+    public class TasksController(ITaskService taskService) : ControllerBase
     {
-        private readonly ITaskService _taskService;
-
-        public TasksController(ITaskService taskService)
-        {
-            _taskService = taskService;
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var tasks = await _taskService.GetAllAsync();
+            var tasks = await taskService.GetAllAsync();
             return Ok(tasks);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var task = await _taskService.GetByIdAsync(id);
+            var task = await taskService.GetByIdAsync(id);
             if (task == null) return NotFound();
             return Ok(task);
         }
@@ -33,21 +26,21 @@ namespace Jira_ya.Api.Controllers
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetByUserId(Guid userId)
         {
-            var tasks = await _taskService.GetByUserIdAsync(userId);
+            var tasks = await taskService.GetByUserIdAsync(userId);
             return Ok(tasks);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] TaskDto dto)
         {
-            var created = await _taskService.CreateAsync(dto);
+            var created = await taskService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] TaskDto dto)
         {
-            var updated = await _taskService.UpdateAsync(id, dto);
+            var updated = await taskService.UpdateAsync(id, dto);
             if (updated == null) return NotFound();
             return Ok(updated);
         }
@@ -55,7 +48,7 @@ namespace Jira_ya.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var deleted = await _taskService.DeleteAsync(id);
+            var deleted = await taskService.DeleteAsync(id);
             if (!deleted) return NotFound();
             return NoContent();
         }
@@ -63,7 +56,7 @@ namespace Jira_ya.Api.Controllers
         [HttpPost("{taskId}/assign/{userId}")]
         public async Task<IActionResult> AssignTask(Guid taskId, Guid userId)
         {
-            var result = await _taskService.AssignTaskAsync(taskId, userId);
+            var result = await taskService.AssignTaskAsync(taskId, userId);
             if (!result) return NotFound();
             return NoContent();
         }

@@ -4,6 +4,10 @@
     <ProjectReference Include="..\Jira-ya.Domain\Jira-ya.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Jira_ya.Application</RootNamespace>

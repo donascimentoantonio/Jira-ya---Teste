@@ -5,21 +5,11 @@ using Jira_ya.Domain.Interfaces;
 
 namespace Jira_ya.Application.Services
 {
-    public class UserService : IUserService
+    public class UserService(IUserRepository userRepository, INotificationService notificationService) : IUserService
     {
-        private readonly IUserRepository _userRepository;
-        private readonly INotificationService _notificationService;
-
-        public UserService(IUserRepository userRepository, INotificationService notificationService)
-        {
-            _userRepository = userRepository;
-            _notificationService = notificationService;
-        }
-
-
         public async Task<IEnumerable<UserDto>> GetAllAsync()
         {
-            var users = _userRepository.GetAll();
+            var users = userRepository.GetAll();
             return users.Select(u => new UserDto
             {
                 Id = u.Id,
@@ -30,7 +20,7 @@ namespace Jira_ya.Application.Services
 
         public async Task<UserDto> GetByIdAsync(Guid id)
         {
-            var u = _userRepository.GetById(id);
+            var u = userRepository.GetById(id);
             if (u == null) return null;
             return new UserDto
             {
@@ -48,8 +38,8 @@ namespace Jira_ya.Application.Services
                 Username = dto.Name,
                 Email = dto.Email
             };
-            _userRepository.Add(entity);
-            await _notificationService.NotifyAsync($"Usuário criado: {entity.Username}", entity.Id);
+            userRepository.Add(entity);
+            await notificationService.NotifyAsync($"Usuário criado: {entity.Username}", entity.Id);
             return new UserDto
             {
                 Id = entity.Id,
@@ -60,12 +50,12 @@ namespace Jira_ya.Application.Services
 
         public async Task<UserDto> UpdateAsync(Guid id, CreateUserRequest dto)
         {
-            var entity = _userRepository.GetById(id);
+            var entity = userRepository.GetById(id);
             if (entity == null) return null;
             entity.Username = dto.Name;
             entity.Email = dto.Email;
-            _userRepository.Update(entity);
-            await _notificationService.NotifyAsync($"Usuário atualizado: {entity.Username}", entity.Id);
+            userRepository.Update(entity);
+            await notificationService.NotifyAsync($"Usuário atualizado: {entity.Username}", entity.Id);
             return new UserDto
             {
                 Id = entity.Id,
@@ -76,10 +66,10 @@ namespace Jira_ya.Application.Services
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var entity = _userRepository.GetById(id);
+            var entity = userRepository.GetById(id);
             if (entity == null) return false;
-            _userRepository.Delete(id);
-            await _notificationService.NotifyAsync($"Usuário removido: {entity.Username}", entity.Id);
+            userRepository.Delete(id);
+            await notificationService.NotifyAsync($"Usuário removido: {entity.Username}", entity.Id);
             return true;
         }
 
@@ -97,7 +87,7 @@ namespace Jira_ya.Application.Services
                     Username = username,
                     Email = $"{username}@example.com"
                 };
-                _userRepository.Add(entity);
+                userRepository.Add(entity);
                 users.Add(new UserDto
                 {
                     Id = entity.Id,

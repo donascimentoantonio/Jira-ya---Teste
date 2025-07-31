@@ -1,3 +1,5 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Jira_ya.Application.Services;
 using Jira_ya.Application.Services.Interfaces;
 using Jira_ya.Domain.Interfaces;
@@ -19,6 +21,11 @@ namespace Jira_ya.Api
             services.AddScoped<INotificationService, NotificationService>(); 
             services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IUserService, UserService>();
+
+            services.AddControllers();
+            services.AddFluentValidationAutoValidation();
+            services.AddFluentValidationClientsideAdapters();
+            services.AddValidatorsFromAssemblyContaining<Application.Validators.CreateRandomUsersRequestValidator>();
 
             return services;
         }
