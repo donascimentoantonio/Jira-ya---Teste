@@ -1,5 +1,3 @@
-using Jira_ya.Domain.Entities;
-
 namespace Jira_ya.Domain.Interfaces
 {
     using DomainTask = Entities.Task;
