@@ -1,6 +1,5 @@
 using Jira_ya.Application.DTOs;
 using Jira_ya.Application.Services.Interfaces;
-using Jira_ya.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Jira_ya.Api.Controllers
@@ -18,39 +17,39 @@ namespace Jira_ya.Api.Controllers
 
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var users = _userService.GetAll();
+            var users = await _userService.GetAllAsync();
             return Ok(users);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(Guid id)
         {
-            var user = _userService.GetById(id);
+            var user = await _userService.GetByIdAsync(id);
             if (user == null) return NotFound();
             return Ok(user);
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] CreateUserRequest dto)
+        public async Task<IActionResult> Create([FromBody] CreateUserRequest dto)
         {
-            var created = _userService.Create(dto);
+            var created = await _userService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] CreateUserRequest dto)
+        public async Task<IActionResult> Update(Guid id, [FromBody] CreateUserRequest dto)
         {
-            var updated = _userService.Update(id, dto);
+            var updated = await _userService.UpdateAsync(id, dto);
             if (updated == null) return NotFound();
             return Ok(updated);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var deleted = _userService.Delete(id);
+            var deleted = await _userService.DeleteAsync(id);
             if (!deleted) return NotFound();
             return NoContent();
         }

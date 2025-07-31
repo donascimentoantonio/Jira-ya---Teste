@@ -5,10 +5,12 @@ namespace Jira_ya.Application.Services.Interfaces
 {
     public interface ITaskService
     {
-        IEnumerable<TaskDto> GetAll();
-        TaskDto GetById(int id);
-        TaskDto Create(TaskDto dto);
-        TaskDto Update(int id, TaskDto dto);
-        bool Delete(int id);
+        Task<bool> AssignTaskAsync(Guid taskId, Guid userId);
+        Task<IEnumerable<TaskDto>> GetAllAsync();
+        Task<TaskDto> GetByIdAsync(Guid id);
+        Task<TaskDto> CreateAsync(TaskDto dto);
+        Task<TaskDto> UpdateAsync(Guid id, TaskDto dto);
+        Task<bool> DeleteAsync(Guid id);
+        Task<IEnumerable<TaskDto>> GetByUserIdAsync(Guid userId);
     }
 }

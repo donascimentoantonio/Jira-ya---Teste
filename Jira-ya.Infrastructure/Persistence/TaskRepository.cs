@@ -4,37 +4,62 @@ namespace Jira_ya.Infrastructure.Persistence
 {
     using DomainTask = Jira_ya.Domain.Entities.Task;
 
-    public class TaskRepository(AppDbContext context) : ITaskRepository
+    using Microsoft.EntityFrameworkCore;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+
+    public class TaskRepository : ITaskRepository
+        public async Task<bool> AssignTaskAsync(Guid taskId, Guid userId)
+        {
+            var task = await context.Tasks.FindAsync(taskId);
+            if (task == null) return false;
+            task.AssignedUserId = userId;
+            await context.SaveChangesAsync();
+            return true;
+        }
     {
-        public DomainTask GetById(int id)
+        private readonly AppDbContext context;
+        public TaskRepository(AppDbContext context)
         {
-            return context.Tasks.Find(id);
+            this.context = context;
         }
 
-        public IEnumerable<DomainTask> GetAll()
+        public async Task<IEnumerable<DomainTask>> GetTasksByUserIdAsync(Guid userId)
         {
-            return [.. context.Tasks];
+            return await context.Tasks
+                .Where(t => t.AssignedUserId == userId)
+                .ToListAsync();
         }
 
-        public void Add(DomainTask task)
+        public async Task<DomainTask> GetByIdAsync(Guid id)
         {
-            context.Tasks.Add(task);
-            context.SaveChanges();
+            return await context.Tasks.FindAsync(id);
         }
 
-        public void Update(DomainTask task)
+        public async Task<IEnumerable<DomainTask>> GetAllAsync()
+        {
+            return await context.Tasks.ToListAsync();
+        }
+
+        public async Task AddAsync(DomainTask task)
+        {
+            await context.Tasks.AddAsync(task);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(DomainTask task)
         {
             context.Tasks.Update(task);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
-        public void Delete(int id)
+        public async Task DeleteAsync(Guid id)
         {
-            var task = context.Tasks.Find(id);
+            var task = await context.Tasks.FindAsync(id);
             if (task != null)
             {
                 context.Tasks.Remove(task);
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
     }

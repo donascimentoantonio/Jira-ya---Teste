@@ -6,73 +6,81 @@ using Jira_ya.Domain.Interfaces;
 
 namespace Jira_ya.Application.Services
 {
-    public class UserService(IUserRepository userRepository, INotificationService notificationService) : IUserService
+    public class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository = userRepository;
-        private readonly INotificationService _notificationService = notificationService;
+        private readonly IUserRepository _userRepository;
+        private readonly INotificationService _notificationService;
 
-
-        public IEnumerable<UserDto> GetAll()
+        public UserService(IUserRepository userRepository, INotificationService notificationService)
         {
-            return _userRepository.GetAll().Select(u => new UserDto
+            _userRepository = userRepository;
+            _notificationService = notificationService;
+        }
+
+
+        public async Task<IEnumerable<UserDto>> GetAllAsync()
+        {
+            var users = _userRepository.GetAll();
+            return users.Select(u => new UserDto
             {
                 Id = u.Id,
-                Name = u.Name,
+                Name = u.Username,
                 Email = u.Email
             });
         }
 
-        public UserDto GetById(int id)
+        public async Task<UserDto> GetByIdAsync(Guid id)
         {
             var u = _userRepository.GetById(id);
             if (u == null) return null;
             return new UserDto
             {
                 Id = u.Id,
-                Name = u.Name,
+                Name = u.Username,
                 Email = u.Email
             };
         }
 
-        public UserDto Create(CreateUserRequest dto)
+        public async Task<UserDto> CreateAsync(CreateUserRequest dto)
         {
             var entity = new User
             {
-                Name = dto.Name,
+                Id = Guid.NewGuid(),
+                Username = dto.Name,
                 Email = dto.Email
             };
             _userRepository.Add(entity);
-            _notificationService.Notify($"Usuário criado: {entity.Name}", entity.Id);
+            await _notificationService.NotifyAsync($"Usuário criado: {entity.Username}", entity.Id);
             return new UserDto
             {
                 Id = entity.Id,
-                Name = entity.Name,
+                Name = entity.Username,
                 Email = entity.Email
             };
         }
 
-        public UserDto Update(int id, CreateUserRequest dto)
+        public async Task<UserDto> UpdateAsync(Guid id, CreateUserRequest dto)
         {
             var entity = _userRepository.GetById(id);
             if (entity == null) return null;
-            entity.Name = dto.Name;
+            entity.Username = dto.Name;
             entity.Email = dto.Email;
             _userRepository.Update(entity);
-            _notificationService.Notify($"Usuário atualizado: {entity.Name}", entity.Id);
+            await _notificationService.NotifyAsync($"Usuário atualizado: {entity.Username}", entity.Id);
             return new UserDto
             {
                 Id = entity.Id,
-                Name = entity.Name,
+                Name = entity.Username,
                 Email = entity.Email
             };
         }
 
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var entity = _userRepository.GetById(id);
             if (entity == null) return false;
             _userRepository.Delete(id);
-            _notificationService.Notify($"Usuário removido: {entity.Name}", entity.Id);
+            await _notificationService.NotifyAsync($"Usuário removido: {entity.Username}", entity.Id);
             return true;
         }
     }

@@ -8,6 +8,14 @@ namespace Jira_ya.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     public class TasksController : ControllerBase
+
+        [HttpPost("{taskId}/assign/{userId}")]
+        public async Task<IActionResult> AssignTask(Guid taskId, Guid userId)
+        {
+            var result = await _taskService.AssignTaskAsync(taskId, userId);
+            if (!result) return NotFound();
+            return NoContent();
+        }
     {
         private readonly ITaskService _taskService;
 
@@ -17,39 +25,46 @@ namespace Jira_ya.Api.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var tasks = _taskService.GetAll();
+            var tasks = await _taskService.GetAllAsync();
             return Ok(tasks);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(Guid id)
         {
-            var task = _taskService.GetById(id);
+            var task = await _taskService.GetByIdAsync(id);
             if (task == null) return NotFound();
             return Ok(task);
         }
 
-        [HttpPost]
-        public IActionResult Create([FromBody] TaskDto dto)
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetByUserId(Guid userId)
         {
-            var created = _taskService.Create(dto);
+            var tasks = await _taskService.GetByUserIdAsync(userId);
+            return Ok(tasks);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] TaskDto dto)
+        {
+            var created = await _taskService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] TaskDto dto)
+        public async Task<IActionResult> Update(Guid id, [FromBody] TaskDto dto)
         {
-            var updated = _taskService.Update(id, dto);
+            var updated = await _taskService.UpdateAsync(id, dto);
             if (updated == null) return NotFound();
             return Ok(updated);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var deleted = _taskService.Delete(id);
+            var deleted = await _taskService.DeleteAsync(id);
             if (!deleted) return NotFound();
             return NoContent();
         }
