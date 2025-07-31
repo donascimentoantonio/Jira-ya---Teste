@@ -1,12 +1,10 @@
-using Jira_ya.Application.Common;
 using Jira_ya.Application.DTOs;
 using Jira_ya.Application.Services;
-using Jira_ya.Domain.Entities;
+using DomainUser = Jira_ya.Domain.Entities.User;
 using Jira_ya.Domain.Interfaces;
 using Moq;
-using Xunit;
 
-namespace Jira_ya.UnitTests
+namespace Jira_ya.UnitTests.User
 {
     public class UserServiceTests
     {
@@ -23,10 +21,10 @@ namespace Jira_ya.UnitTests
         [Fact]
         public async Task CreateAsync_ReturnsOk_WhenUserIsCreated()
         {
-            var dto = new CreateUserRequest { Username = "user", Email = "user@email.com" };
-            var user = new User { Id = Guid.NewGuid(), Username = dto.Username, Email = dto.Email };
+            var dto = new CreateUserRequest { Name = "user", Email = "user@email.com" };
+            var user = new DomainUser { Id = Guid.NewGuid(), Username = dto.Name, Email = dto.Email };
             var userDto = new UserDto { Id = user.Id, Name = user.Username, Email = user.Email };
-            _mapperMock.Setup(m => m.Map<User>(dto)).Returns(user);
+            _mapperMock.Setup(m => m.Map<DomainUser>(dto)).Returns(user);
             _mapperMock.Setup(m => m.Map<UserDto>(user)).Returns(userDto);
 
             var result = await _service.CreateAsync(dto);
@@ -38,8 +36,8 @@ namespace Jira_ya.UnitTests
         [Fact]
         public async Task UpdateAsync_ReturnsFail_WhenUserNotFound()
         {
-            _userRepoMock.Setup(r => r.GetById(It.IsAny<Guid>())).Returns((User)null);
-            var dto = new CreateUserRequest { Username = "user", Email = "user@email.com" };
+            _userRepoMock.Setup(r => r.GetById(It.IsAny<Guid>())).Returns((DomainUser)null);
+            var dto = new CreateUserRequest { Name = "user", Email = "user@email.com" };
 
             var result = await _service.UpdateAsync(Guid.NewGuid(), dto);
 
@@ -50,7 +48,7 @@ namespace Jira_ya.UnitTests
         [Fact]
         public async Task DeleteAsync_ReturnsFail_WhenUserNotFound()
         {
-            _userRepoMock.Setup(r => r.GetById(It.IsAny<Guid>())).Returns((User)null);
+            _userRepoMock.Setup(r => r.GetById(It.IsAny<Guid>())).Returns((DomainUser)null);
 
             var result = await _service.DeleteAsync(Guid.NewGuid());
 
