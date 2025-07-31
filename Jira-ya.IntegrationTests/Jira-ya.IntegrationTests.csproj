@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.7" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="xunit" Version="2.5.3" />
@@ -21,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Jira-ya.Application\Jira-ya.Application.csproj" />
     <ProjectReference Include="..\Jira-ya.Domain\Jira-ya.Domain.csproj" />
+    <ProjectReference Include="..\Jira-ya.Infrastructure\Jira-ya.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
