@@ -8,10 +8,7 @@ namespace Jira_ya.Infrastructure.Persistence
     {
         private readonly AppDbContext _context;
 
-        public UserRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        public UserRepository(AppDbContext context) => _context = context;
 
 
         public User GetById(Guid id)

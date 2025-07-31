@@ -1,4 +1,3 @@
-
 using Jira_ya.Application.DTOs;
 using Jira_ya.Application.Services.Interfaces;
 using Jira_ya.Domain.Entities;
@@ -82,6 +81,31 @@ namespace Jira_ya.Application.Services
             _userRepository.Delete(id);
             await _notificationService.NotifyAsync($"Usuário removido: {entity.Username}", entity.Id);
             return true;
+        }
+
+        public async Task<IEnumerable<UserDto>> CreateRandomUsersAsync(int amount, string userNameMask, string randomKey)
+        {
+            var users = new List<UserDto>();
+            var rand = new Random();
+            for (int i = 0; i < amount; i++)
+            {
+                var randomPart = randomKey + rand.Next(100000, 999999);
+                var username = userNameMask.Replace("{{random}}", randomPart);
+                var entity = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = username,
+                    Email = $"{username}@example.com"
+                };
+                _userRepository.Add(entity);
+                users.Add(new UserDto
+                {
+                    Id = entity.Id,
+                    Name = entity.Username,
+                    Email = entity.Email
+                });
+            }
+            return users;
         }
     }
 }

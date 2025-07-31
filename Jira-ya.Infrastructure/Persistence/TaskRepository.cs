@@ -11,10 +11,7 @@ namespace Jira_ya.Infrastructure.Persistence
     public class TaskRepository : ITaskRepository       
     {
         private readonly AppDbContext context;
-        public TaskRepository(AppDbContext context)
-        {
-            this.context = context;
-        }
+        public TaskRepository(AppDbContext context) => this.context = context;
 
         public async Task<IEnumerable<DomainTask>> GetTasksByUserIdAsync(Guid userId)
         {

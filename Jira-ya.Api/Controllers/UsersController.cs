@@ -53,5 +53,13 @@ namespace Jira_ya.Api.Controllers
             if (!deleted) return NotFound();
             return NoContent();
         }
+
+        [HttpPost("createRandom")]
+        public async Task<IActionResult> CreateRandom([FromBody] CreateRandomUsersRequest request, [FromServices] IConfiguration config)
+        {
+            var randomKey = config["RandomUserKey"] ?? "RND";
+            var users = await _userService.CreateRandomUsersAsync(request.Amount, request.UserNameMask, randomKey);
+            return Ok(users);
+        }
     }
 }
