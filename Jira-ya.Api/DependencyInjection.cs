@@ -20,8 +20,10 @@ namespace Jira_ya.Api
             services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<INotificationService, NotificationService>(); 
+
             services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<AuthService>();
 
             services.AddControllers();
             services.AddFluentValidationAutoValidation();

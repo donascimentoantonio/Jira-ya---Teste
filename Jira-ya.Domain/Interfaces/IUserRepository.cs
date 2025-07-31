@@ -5,10 +5,13 @@ namespace Jira_ya.Domain.Interfaces
 {
     public interface IUserRepository
     {
-        User GetById(Guid id);
-        IEnumerable<User> GetAll();
-        void Add(User user);
-        void Update(User user);
-        void Delete(Guid id);
+
+        Task<User?> GetByIdAsync(Guid id);
+        Task<IEnumerable<User>> GetAllAsync();
+        Task AddAsync(User user);
+        Task UpdateAsync(User user);
+        Task DeleteAsync(Guid id);
+
+        Task<User?> GetByUsernameAsync(string username);
     }
 }

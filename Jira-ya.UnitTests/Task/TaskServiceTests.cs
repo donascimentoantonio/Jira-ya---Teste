@@ -1,8 +1,8 @@
-using Jira_ya.Application.DTOs;
 using Moq;
-using DomainTask = Jira_ya.Domain.Entities.DomainTask;
-using Xunit;
+using Jira_ya.UnitTests.TestUtils;
+using Jira_ya.Application.DTOs;
 using Jira_ya.Domain.Interfaces;
+using DomainTask = Jira_ya.Domain.Entities.DomainTask;
 
 namespace Jira_ya.UnitTests.Tasks
 {
@@ -24,11 +24,11 @@ namespace Jira_ya.UnitTests.Tasks
         [Fact]
         public async Task CreateAsync_ReturnsOk_WhenTaskIsCreated()
         {
-            var dto = new CreateTaskRequest { Title = "Task", DueDate = DateTime.Now.AddDays(1), AssignedUserId = Guid.NewGuid() };
-            var user = new Jira_ya.Domain.Entities.User { Id = dto.AssignedUserId, Username = "user", Email = "user@email.com" };
+            var dto = TaskTestDataFactory.CreateValidTaskRequest();
+            var user = DomainTestDataFactory.CreateValidUser(id: dto.AssignedUserId);
             var task = new DomainTask { Id = Guid.NewGuid(), Title = dto.Title, DueDate = dto.DueDate, AssignedUserId = dto.AssignedUserId };
             var taskDto = new TaskDto { Id = task.Id, Title = task.Title, DueDate = task.DueDate, AssignedUserId = task.AssignedUserId };
-            _userRepoMock.Setup(r => r.GetById(dto.AssignedUserId)).Returns(user);
+            _userRepoMock.Setup(r => r.GetByIdAsync(dto.AssignedUserId)).ReturnsAsync(user);
             _mapperMock.Setup(m => m.Map<DomainTask>(dto)).Returns(task);
             _mapperMock.Setup(m => m.Map<TaskDto>(task)).Returns(taskDto);
             _taskRepoMock.Setup(r => r.AddAsync(It.IsAny<DomainTask>())).Returns(Task.CompletedTask);
@@ -43,8 +43,8 @@ namespace Jira_ya.UnitTests.Tasks
         [Fact]
         public async Task CreateAsync_ReturnsFail_WhenUserNotFound()
         {
-            var dto = new CreateTaskRequest { Title = "Task", DueDate = DateTime.Now.AddDays(1), AssignedUserId = Guid.NewGuid() };
-            _userRepoMock.Setup(r => r.GetById(dto.AssignedUserId)).Returns((Jira_ya.Domain.Entities.User)null);
+            var dto = TaskTestDataFactory.CreateValidTaskRequest();
+            _userRepoMock.Setup(r => r.GetByIdAsync(dto.AssignedUserId)).ReturnsAsync((Jira_ya.Domain.Entities.User)null);
 
             var result = await _service.CreateAsync(dto);
 
@@ -55,9 +55,9 @@ namespace Jira_ya.UnitTests.Tasks
         [Fact]
         public async Task CreateAsync_ReturnsFail_WhenExceptionThrown()
         {
-            var dto = new CreateTaskRequest { Title = "Task", DueDate = DateTime.Now.AddDays(1), AssignedUserId = Guid.NewGuid() };
-            var user = new Jira_ya.Domain.Entities.User { Id = dto.AssignedUserId, Username = "user", Email = "user@email.com" };
-            _userRepoMock.Setup(r => r.GetById(dto.AssignedUserId)).Returns(user);
+            var dto = TaskTestDataFactory.CreateValidTaskRequest();
+            var user = DomainTestDataFactory.CreateValidUser(id: dto.AssignedUserId);
+            _userRepoMock.Setup(r => r.GetByIdAsync(dto.AssignedUserId)).ReturnsAsync(user);
             _mapperMock.Setup(m => m.Map<DomainTask>(dto)).Throws(new Exception("Erro de mapeamento"));
 
             var result = await _service.CreateAsync(dto);

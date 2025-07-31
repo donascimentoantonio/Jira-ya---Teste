@@ -1,3 +1,4 @@
+using Jira_ya.UnitTests.TestUtils;
 using Jira_ya.Application.DTOs;
 using Jira_ya.Domain.Interfaces;
 using Moq;
@@ -21,9 +22,9 @@ namespace Jira_ya.UnitTests.User
         [Fact]
         public async Task CreateAsync_ReturnsOk_WhenUserIsCreated()
         {
-            var dto = new CreateUserRequest { Name = "user", Email = "user@email.com" };
-            var user = new DomainUser { Id = Guid.NewGuid(), Username = dto.Name, Email = dto.Email };
-            var userDto = new UserDto { Id = user.Id, Name = user.Username, Email = user.Email };
+            var dto = UserTestDataFactory.CreateValidUserRequest();
+            var user = DomainTestDataFactory.CreateValidUser(username: dto.Name, email: dto.Email);
+            var userDto = UserDtoTestDataFactory.CreateValidUserDto(id: user.Id, name: user.Username, email: user.Email);
             _mapperMock.Setup(m => m.Map<DomainUser>(dto)).Returns(user);
             _mapperMock.Setup(m => m.Map<UserDto>(user)).Returns(userDto);
 
@@ -36,8 +37,8 @@ namespace Jira_ya.UnitTests.User
         [Fact]
         public async Task UpdateAsync_ReturnsFail_WhenUserNotFound()
         {
-            _userRepoMock.Setup(r => r.GetById(It.IsAny<Guid>())).Returns((DomainUser)null);
-            var dto = new CreateUserRequest { Name = "user", Email = "user@email.com" };
+            _userRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((DomainUser)null);
+            var dto = UserTestDataFactory.CreateValidUserRequest();
 
             var result = await _service.UpdateAsync(Guid.NewGuid(), dto);
 
@@ -48,7 +49,7 @@ namespace Jira_ya.UnitTests.User
         [Fact]
         public async Task DeleteAsync_ReturnsFail_WhenUserNotFound()
         {
-            _userRepoMock.Setup(r => r.GetById(It.IsAny<Guid>())).Returns((DomainUser)null);
+            _userRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((DomainUser)null);
 
             var result = await _service.DeleteAsync(Guid.NewGuid());
 
@@ -59,7 +60,7 @@ namespace Jira_ya.UnitTests.User
         [Fact]
         public async Task CreateAsync_ReturnsFail_WhenExceptionThrown()
         {
-            var dto = new CreateUserRequest { Name = "user", Email = "user@email.com" };
+            var dto = UserTestDataFactory.CreateValidUserRequest();
             _mapperMock.Setup(m => m.Map<DomainUser>(dto)).Throws(new System.Exception("Erro de mapeamento"));
 
             var result = await _service.CreateAsync(dto);
@@ -71,10 +72,10 @@ namespace Jira_ya.UnitTests.User
         [Fact]
         public async Task UpdateAsync_ReturnsOk_WhenUserIsUpdated()
         {
-            var dto = new CreateUserRequest { Name = "user", Email = "user@email.com" };
-            var user = new DomainUser { Id = Guid.NewGuid(), Username = dto.Name, Email = dto.Email };
-            var userDto = new UserDto { Id = user.Id, Name = user.Username, Email = user.Email };
-            _userRepoMock.Setup(r => r.GetById(It.IsAny<Guid>())).Returns(user);
+            var dto = UserTestDataFactory.CreateValidUserRequest();
+            var user = DomainTestDataFactory.CreateValidUser(username: dto.Name, email: dto.Email);
+            var userDto = UserDtoTestDataFactory.CreateValidUserDto(id: user.Id, name: user.Username, email: user.Email);
+            _userRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(user);
             _mapperMock.Setup(m => m.Map(dto, user));
             _mapperMock.Setup(m => m.Map<UserDto>(user)).Returns(userDto);
 
@@ -87,8 +88,8 @@ namespace Jira_ya.UnitTests.User
         [Fact]
         public async Task DeleteAsync_ReturnsOk_WhenUserIsDeleted()
         {
-            var user = new DomainUser { Id = Guid.NewGuid(), Username = "user", Email = "user@email.com" };
-            _userRepoMock.Setup(r => r.GetById(It.IsAny<Guid>())).Returns(user);
+            var user = DomainTestDataFactory.CreateValidUser();
+            _userRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(user);
 
             var result = await _service.DeleteAsync(user.Id);
 
@@ -107,7 +108,7 @@ namespace Jira_ya.UnitTests.User
         [Fact]
         public async Task CreateRandomUsersAsync_ReturnsOk_WhenValid()
         {
-            _userRepoMock.Setup(r => r.Add(It.IsAny<DomainUser>()));
+            _userRepoMock.Setup(r => r.AddAsync(It.IsAny<DomainUser>())).Returns(Task.CompletedTask);
             var result = await _service.CreateRandomUsersAsync(2, "mask-{{random}}", "RND");
             Assert.True(result.Success);
             Assert.Equal(2, result.Data.Count());

@@ -35,7 +35,8 @@ namespace Jira_ya.Application.Services
             var dateValidation = TaskDomainValidator.ValidateDueDate(dto.DueDate);
             if (!dateValidation.Success) return Result<TaskDto>.Fail(dateValidation.Error);
 
-            var user = _userRepository.GetById(dto.AssignedUserId);
+
+            var user = await _userRepository.GetByIdAsync(dto.AssignedUserId);
             if (user == null)
                 return Result<TaskDto>.Fail("Usuário não existe para o guid informado, logo não será possível inserir esta task");
 

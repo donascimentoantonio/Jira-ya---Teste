@@ -19,20 +19,20 @@ namespace Jira_ya.Application.Services
             _mapper = mapper;
         }
 
-        private User? GetUserOrNull(Guid id)
+        private Task<User?> GetUserOrNull(Guid id)
         {
-            return _userRepository.GetById(id);
+            return _userRepository.GetByIdAsync(id);
         }
 
         public async Task<IEnumerable<UserDto>> GetAllAsync()
         {
-            var users = _userRepository.GetAll();
+            var users = _userRepository.GetAllAsync();
             return _mapper.Map<IEnumerable<UserDto>>(users);
         }
 
         public async Task<UserDto> GetByIdAsync(Guid id)
         {
-            var u = _userRepository.GetById(id);
+            var u = _userRepository.GetByIdAsync(id);
             if (u == null) return null;
             return _mapper.Map<UserDto>(u);
         }
@@ -43,7 +43,7 @@ namespace Jira_ya.Application.Services
             {
                 var entity = _mapper.Map<User>(dto);
                 entity.Id = Guid.NewGuid();
-                _userRepository.Add(entity);
+                await _userRepository.AddAsync(entity);
                 await _notificationService.NotifyAsync($"Usuário criado: {entity.Username}", entity.Id);
                 return Result<UserDto>.Ok(_mapper.Map<UserDto>(entity));
             }
@@ -55,12 +55,12 @@ namespace Jira_ya.Application.Services
 
         public async Task<Result<UserDto>> UpdateAsync(Guid id, CreateUserRequest dto)
         {
-            var entity = GetUserOrNull(id);
+            var entity = await GetUserOrNull(id);
             if (entity == null) return Result<UserDto>.Fail("Usuário não encontrado.");
             _mapper.Map(dto, entity);
             try
             {
-                _userRepository.Update(entity);
+                await _userRepository.UpdateAsync(entity);
                 await _notificationService.NotifyAsync($"Usuário atualizado: {entity.Username}", entity.Id);
                 return Result<UserDto>.Ok(_mapper.Map<UserDto>(entity));
             }
@@ -69,15 +69,15 @@ namespace Jira_ya.Application.Services
                 return ErrorHandler.HandleException<UserDto>(ex, ErrorMessages.UserUpdateError);
             }
         }
-     
+
         public async Task<Result<bool>> DeleteAsync(Guid id)
         {
-            var entity = GetUserOrNull(id);
+            var entity = await GetUserOrNull(id);
             if (entity == null)
                 return Result<bool>.Fail("Usuário não encontrado.");
             try
             {
-                _userRepository.Delete(id);
+                await _userRepository.DeleteAsync(id);
                 await _notificationService.NotifyAsync($"Usuário removido: {entity.Username}", entity.Id);
                 return Result<bool>.Ok(true);
             }
@@ -111,7 +111,7 @@ namespace Jira_ya.Application.Services
                         Email = $"{username}@example.com"
                     };
 
-                    _userRepository.Add(entity);
+                    _userRepository.AddAsync(entity);
                     users.Add(new UserDto
                     {
                         Id = entity.Id,
