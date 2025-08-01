@@ -1,11 +1,13 @@
 using Jira_ya.Application.DTOs;
 using Jira_ya.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Jira_ya.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class UsersController(IUserService userService) : ControllerBase
     {
         private readonly IUserService _userService = userService;
