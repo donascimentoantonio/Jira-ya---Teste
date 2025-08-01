@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Jira-ya.Domain\Jira-ya.Domain.csproj" />
+    <ProjectReference Include="..\Jira-ya.Application\Jira-ya.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,6 +18,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.7" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
   </ItemGroup>
 
 </Project>

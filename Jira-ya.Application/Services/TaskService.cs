@@ -8,12 +8,14 @@ namespace Jira_ya.Application.Services
 {
     using DomainTask = Jira_ya.Domain.Entities.DomainTask;
 
-    public class TaskService(ITaskRepository taskRepository, INotificationService notificationService, IUserRepository userRepository, AutoMapper.IMapper mapper) : ITaskService    
+    using Jira_ya.Application.MessageBus;
+    public class TaskService(ITaskRepository taskRepository, INotificationService notificationService, IUserRepository userRepository, AutoMapper.IMapper mapper, IMessageBusPublisher messageBusPublisher) : ITaskService    
     {
         private readonly ITaskRepository _taskRepository = taskRepository;
         private readonly INotificationService _notificationService = notificationService;
         private readonly IUserRepository _userRepository = userRepository;
         private readonly AutoMapper.IMapper _mapper = mapper;
+        private readonly IMessageBusPublisher _messageBusPublisher = messageBusPublisher;
 
         public async Task<IEnumerable<TaskDto>> GetAllAsync()
         {
@@ -47,6 +49,10 @@ namespace Jira_ya.Application.Services
                 entity.Id = Guid.NewGuid();
                 await _taskRepository.AddAsync(entity);
                 await _notificationService.NotifyAsync($"Tarefa criada: {entity.Title}", entity.AssignedUserId);
+                await _messageBusPublisher.PublishAsync("user-notifications", new {
+                    UserId = entity.AssignedUserId,
+                    Message = $"Você recebeu uma nova tarefa: {entity.Title}"
+                });
             }
             catch (Exception ex)
             {
@@ -70,6 +76,10 @@ namespace Jira_ya.Application.Services
             {
                 await _taskRepository.UpdateAsync(entity);
                 await _notificationService.NotifyAsync($"Tarefa atualizada: {entity.Title}", entity.AssignedUserId);
+                await _messageBusPublisher.PublishAsync("user-notifications", new {
+                    UserId = entity.AssignedUserId,
+                    Message = $"Uma tarefa sua foi atualizada: {entity.Title}"
+                });
             }
             catch (Exception ex)
             {
@@ -87,6 +97,10 @@ namespace Jira_ya.Application.Services
             {
                 await _taskRepository.DeleteAsync(id);
                 await _notificationService.NotifyAsync($"Tarefa removida: {entity.Title}", entity.AssignedUserId);
+                await _messageBusPublisher.PublishAsync("user-notifications", new {
+                    UserId = entity.AssignedUserId,
+                    Message = $"Uma tarefa sua foi excluída: {entity.Title}"
+                });
             }
             catch (Exception ex)
             {
@@ -104,7 +118,13 @@ namespace Jira_ya.Application.Services
         {
             var result = await _taskRepository.AssignTaskAsync(taskId, userId);
             if (result)
+            {
                 await _notificationService.NotifyAsync($"Tarefa atribuída ao usuário {userId}", userId);
+                await _messageBusPublisher.PublishAsync("user-notifications", new {
+                    UserId = userId,
+                    Message = $"Uma tarefa foi atribuída a você."
+                });
+            }
             return result;
         }
     }

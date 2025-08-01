@@ -5,6 +5,7 @@ using Jira_ya.Application.Services.Interfaces;
 using Jira_ya.Domain.Interfaces;
 using Jira_ya.Infrastructure.Notifications;
 using Jira_ya.Infrastructure.Persistence;
+using Jira_ya.Application.MessageBus;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jira_ya.Api
@@ -15,6 +16,7 @@ namespace Jira_ya.Api
         {
             services.AddAutoMapper(typeof(Jira_ya.Application.Mapping.TaskProfile).Assembly);
             services.AddAutoMapper(typeof(Jira_ya.Application.Mapping.UserProfile).Assembly);
+            services.AddScoped<Jira_ya.Application.MessageBus.IMessageBusPublisher, Jira_ya.Infrastructure.MessageBus.RabbitMqPublisher>();
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
 
