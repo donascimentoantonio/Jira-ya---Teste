@@ -3,7 +3,6 @@ using Jira_ya.Application.DTOs;
 using Jira_ya.Application.Services.Interfaces;
 using Jira_ya.Domain.Interfaces;
 using Jira_ya.Application.Domain;
-using Jira_ya.Application.MessageBus;
 using Jira_ya.Domain.Common;
 
 namespace Jira_ya.Application.Services
