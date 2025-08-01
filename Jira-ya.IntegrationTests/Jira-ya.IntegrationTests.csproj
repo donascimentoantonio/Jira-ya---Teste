@@ -23,6 +23,7 @@
     <ProjectReference Include="..\Jira-ya.Application\Jira-ya.Application.csproj" />
     <ProjectReference Include="..\Jira-ya.Domain\Jira-ya.Domain.csproj" />
     <ProjectReference Include="..\Jira-ya.Infrastructure\Jira-ya.Infrastructure.csproj" />
+    <ProjectReference Include="..\Jira-ya.UnitTests\Jira-ya.UnitTests.csproj" />
   </ItemGroup>
 
   <ItemGroup>

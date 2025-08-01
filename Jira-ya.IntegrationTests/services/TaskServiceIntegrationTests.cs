@@ -4,6 +4,7 @@ using Jira_ya.Application.Mapping;
 using Jira_ya.Application.Services;
 using Jira_ya.Domain.Entities;
 using Jira_ya.Infrastructure.Persistence;
+using Jira_ya.UnitTests.TestUtils;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,27 +38,21 @@ namespace Jira_ya.IntegrationTests.services
             });
             _mapper = config.CreateMapper();
             var notification = new FakeNotificationService();
-            var messageBus = new FakeMessageBusPublisher();
-            _service = new TaskService(_taskRepo, notification, _userRepo, _mapper, messageBus);
+            _service = new TaskService(_taskRepo, notification, _userRepo, _mapper);
         }
 
         [Fact]
         public async Task CreateAsync_PersistsTask_WhenValid()
         {
-            var user = new User { Id = Guid.NewGuid(), Username = "user", Email = "user@email.com" };
+            var user = DomainTestDataFactory.CreateValidUser();
+
             _context.Users.Add(user);
             _context.SaveChanges();
 
-            var dto = new CreateTaskRequest {
-                Title = "Task",
-                Description = "Descrição teste",
-                DueDate = DateTime.Now.AddDays(1),
-                AssignedUserId = user.Id
-            };
+            var dto = DomainTestDataFactory.CreateValidTaskRequest();
 
             var result = await _service.CreateAsync(dto);
 
-            // Ajuda no diagnóstico: mostra o erro se falhar
             Assert.True(result.Success, result.Error);
             Assert.NotNull(await _context.Tasks.FirstOrDefaultAsync(t => t.Title == "Task"));
         }
@@ -73,10 +68,5 @@ namespace Jira_ya.IntegrationTests.services
     public class FakeNotificationService : Jira_ya.Domain.Interfaces.INotificationService
     {
         public Task NotifyAsync(string message, Guid userId) => Task.CompletedTask;
-    }
-
-    public class FakeMessageBusPublisher : Jira_ya.Application.MessageBus.IMessageBusPublisher
-    {
-        public Task PublishAsync(string queue, object message) => Task.CompletedTask;
     }
 }

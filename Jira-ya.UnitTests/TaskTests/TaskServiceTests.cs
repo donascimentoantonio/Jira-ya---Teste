@@ -2,25 +2,27 @@ using Moq;
 using Jira_ya.UnitTests.TestUtils;
 using Jira_ya.Application.DTOs;
 using Jira_ya.Domain.Entities;
+using Jira_ya.Domain.Common;
+using Jira_ya.UnitTests.Entities.TaskTests;
+// using Jira_ya.UnitTests.Tasks;
 
 namespace Jira_ya.UnitTests.Tasks
 {
 public class TaskServiceTests : IClassFixture<TaskServiceFixture>
     {
         private readonly TaskServiceFixture _fixture;
-        private Mock<Jira_ya.Domain.Interfaces.ITaskRepository> _taskRepoMock => _fixture.TaskRepoMock;
-        private Mock<Jira_ya.Domain.Interfaces.INotificationService> _notificationMock => _fixture.NotificationMock;
-        private Mock<Jira_ya.Domain.Interfaces.IUserRepository> _userRepoMock => _fixture.UserRepoMock;
+        private Mock<Domain.Interfaces.ITaskRepository> _taskRepoMock => _fixture.TaskRepoMock;
+        private Mock<Domain.Interfaces.INotificationService> _notificationMock => _fixture.NotificationMock;
+        private Mock<Domain.Interfaces.IUserRepository> _userRepoMock => _fixture.UserRepoMock;
         private Mock<AutoMapper.IMapper> _mapperMock => _fixture.MapperMock;
-        private Mock<Application.MessageBus.IMessageBusPublisher> _messageBusMock => _fixture.MessageBusMock;
+        // IMessageBusPublisher não é mais necessário
         private Application.Services.TaskService _service => _fixture.Service;
 
         public TaskServiceTests(TaskServiceFixture fixture)
         {
             _fixture = fixture;
             _fixture.ResetMocks();
-            // Mock PublishAsync para todos os testes
-            _messageBusMock.Setup(m => m.PublishAsync(It.IsAny<string>(), It.IsAny<object>())).Returns(System.Threading.Tasks.Task.CompletedTask);
+            // IMessageBusPublisher não é mais necessário
         }
 
         [Fact]
@@ -28,8 +30,8 @@ public class TaskServiceTests : IClassFixture<TaskServiceFixture>
         {
             var dto = TaskTestDataFactory.CreateValidTaskRequest();
             var user = DomainTestDataFactory.CreateValidUser(id: dto.AssignedUserId);
-            var task = new DomainTask { Id = Guid.NewGuid(), Title = dto.Title, DueDate = dto.DueDate, AssignedUserId = dto.AssignedUserId };
-            var taskDto = new TaskDto { Id = task.Id, Title = task.Title, DueDate = task.DueDate, AssignedUserId = task.AssignedUserId };
+            var task = TaskTestDataFactory.CreateValidDomainTask(assignedUserId: dto.AssignedUserId, title: dto.Title);
+            var taskDto = TaskTestDataFactory.CreateValidTaskDto(id: task.Id, assignedUserId: task.AssignedUserId, title: task.Title);
             _userRepoMock.Setup(r => r.GetByIdAsync(dto.AssignedUserId)).ReturnsAsync(user);
             _mapperMock.Setup(m => m.Map<DomainTask>(dto)).Returns(task);
             _mapperMock.Setup(m => m.Map<TaskDto>(task)).Returns(taskDto);
@@ -71,9 +73,9 @@ public class TaskServiceTests : IClassFixture<TaskServiceFixture>
         [Fact]
         public async Task UpdateAsync_ReturnsFail_WhenTaskNotFound()
         {
-            var id = Guid.NewGuid();
+            var id = IdGenerator.New();
             _taskRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((DomainTask?)null);
-            var dto = new TaskDto { Id = id, Title = "Task", DueDate = DateTime.Now.AddDays(1), AssignedUserId = Guid.NewGuid() };
+            var dto = TaskTestDataFactory.CreateValidTaskDto(id: id);
 
             var result = await _service.UpdateAsync(id, dto);
 
@@ -84,8 +86,8 @@ public class TaskServiceTests : IClassFixture<TaskServiceFixture>
         [Fact]
         public async Task DeleteAsync_ReturnsOk_WhenTaskIsDeleted()
         {
-            var id = Guid.NewGuid();
-            var task = new DomainTask { Id = id, Title = "Task", DueDate = DateTime.Now.AddDays(1), AssignedUserId = Guid.NewGuid() };
+            var id = IdGenerator.New();
+            var task = TaskTestDataFactory.CreateValidDomainTask(id: id);
             _taskRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(task);
             _taskRepoMock.Setup(r => r.DeleteAsync(It.IsAny<Guid>())).Returns(System.Threading.Tasks.Task.CompletedTask);
             _notificationMock.Setup(n => n.NotifyAsync(It.IsAny<string>(), It.IsAny<Guid>())).Returns(System.Threading.Tasks.Task.CompletedTask);
@@ -99,7 +101,7 @@ public class TaskServiceTests : IClassFixture<TaskServiceFixture>
         [Fact]
         public async Task DeleteAsync_ReturnsFail_WhenTaskNotFound()
         {
-            var id = Guid.NewGuid();
+            var id = IdGenerator.New();
             _taskRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((DomainTask?)null);
 
             var result = await _service.DeleteAsync(id);

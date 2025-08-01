@@ -2,7 +2,7 @@ using Jira_ya.Application.Services;
 using Jira_ya.Domain.Interfaces;
 using Moq;
 
-namespace Jira_ya.UnitTests.Tasks
+namespace Jira_ya.UnitTests.Entities.TaskTests
 {
     public class TaskServiceFixture : IDisposable
     {
@@ -15,7 +15,7 @@ namespace Jira_ya.UnitTests.Tasks
 
         public TaskServiceFixture()
         {
-            Service = new TaskService(TaskRepoMock.Object, NotificationMock.Object, UserRepoMock.Object, MapperMock.Object, MessageBusMock.Object);
+            Service = new TaskService(TaskRepoMock.Object, NotificationMock.Object, UserRepoMock.Object, MapperMock.Object);
         }
 
         public void ResetMocks()

@@ -1,4 +1,5 @@
 using Jira_ya.Application.DTOs;
+using Jira_ya.Domain.Common;
 using System;
 
 namespace Jira_ya.UnitTests.TestUtils
@@ -9,7 +10,7 @@ namespace Jira_ya.UnitTests.TestUtils
         {
             return new UserDto
             {
-                Id = id ?? Guid.NewGuid(),
+                Id = id ?? IdGenerator.New(),
                 Name = name ?? "user",
                 Email = email ?? "user@email.com"
             };

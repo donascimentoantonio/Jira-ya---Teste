@@ -2,7 +2,7 @@ using Jira_ya.Application.Services;
 using Jira_ya.Domain.Interfaces;
 using Moq;
 
-namespace Jira_ya.UnitTests.User
+namespace Jira_ya.UnitTests.Entities.UserTests
 {
     public class UserServiceFixture : IDisposable
     {

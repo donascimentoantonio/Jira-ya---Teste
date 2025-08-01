@@ -1,15 +1,16 @@
 
+using Jira_ya.Domain.Common;
+using Jira_ya.Domain.Entities;
+
 namespace Jira_ya.UnitTests.TestUtils
 {
-    using DomainUser = Jira_ya.Domain.Entities.User;
-
     public static class DomainTestDataFactory
     {
-        public static DomainUser CreateValidUser(Guid? id = null, string? username = null, string? email = null)
+        public static User CreateValidUser(Guid? id = null, string? username = null, string? email = null)
         {
-            return new DomainUser
+            return new User
             {
-                Id = id ?? Guid.NewGuid(),
+                Id = id ?? IdGenerator.New(),
                 Username = username ?? "user",
                 Email = email ?? "user@email.com"
             };

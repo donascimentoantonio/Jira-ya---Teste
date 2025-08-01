@@ -4,20 +4,18 @@ using Jira_ya.Application.Services.Interfaces;
 using Jira_ya.Domain.Interfaces;
 using Jira_ya.Application.Domain;
 using Jira_ya.Application.MessageBus;
+using Jira_ya.Domain.Common;
 
 namespace Jira_ya.Application.Services
 {
     using DomainTask = Jira_ya.Domain.Entities.DomainTask;
 
-    public class TaskService(ITaskRepository taskRepository, INotificationService notificationService, IUserRepository userRepository, AutoMapper.IMapper mapper, IMessageBusPublisher messageBusPublisher) : ITaskService    
+    public class TaskService(ITaskRepository taskRepository, INotificationService notificationService, IUserRepository userRepository, AutoMapper.IMapper mapper) : ITaskService    
     {
         private readonly ITaskRepository _taskRepository = taskRepository;
         private readonly INotificationService _notificationService = notificationService;
         private readonly IUserRepository _userRepository = userRepository;
         private readonly AutoMapper.IMapper _mapper = mapper;
-        private readonly IMessageBusPublisher _messageBusPublisher = messageBusPublisher;
-
-        private const string NotificationQueue = "user-notifications";
 
         public async Task<IEnumerable<TaskDto>> GetAllAsync()
         {
@@ -48,13 +46,9 @@ namespace Jira_ya.Application.Services
             try
             {
                 entity = _mapper.Map<DomainTask>(dto);
-                entity.Id = Guid.NewGuid();
+                entity.Id = IdGenerator.New();
                 await _taskRepository.AddAsync(entity);
-                await _notificationService.NotifyAsync(string.Format(Common.DomainMessages.TaskCreated, entity.Title), entity.AssignedUserId);
-                await _messageBusPublisher.PublishAsync(NotificationQueue, new {
-                    UserId = entity.AssignedUserId,
-                    Message = string.Format(Common.DomainMessages.TaskNotificationCreated, entity.Title)
-                });
+                await _notificationService.NotifyAsync(string.Format(Common.DomainMessages.TaskNotificationCreated, entity.Title), entity.AssignedUserId);
             }
             catch (Exception ex)
             {
@@ -77,11 +71,7 @@ namespace Jira_ya.Application.Services
             try
             {
                 await _taskRepository.UpdateAsync(entity);
-                await _notificationService.NotifyAsync(string.Format(Common.DomainMessages.TaskUpdated, entity.Title), entity.AssignedUserId);
-                await _messageBusPublisher.PublishAsync(NotificationQueue, new {
-                    UserId = entity.AssignedUserId,
-                    Message = string.Format(Common.DomainMessages.TaskNotificationUpdated, entity.Title)
-                });
+                await _notificationService.NotifyAsync(string.Format(Common.DomainMessages.TaskNotificationUpdated, entity.Title), entity.AssignedUserId);
             }
             catch (Exception ex)
             {
@@ -98,11 +88,7 @@ namespace Jira_ya.Application.Services
             try
             {
                 await _taskRepository.DeleteAsync(id);
-                await _notificationService.NotifyAsync(string.Format(Common.DomainMessages.TaskRemoved, entity.Title), entity.AssignedUserId);
-                await _messageBusPublisher.PublishAsync(NotificationQueue, new {
-                    UserId = entity.AssignedUserId,
-                    Message = string.Format(Common.DomainMessages.TaskNotificationDeleted, entity.Title)
-                });
+                await _notificationService.NotifyAsync(string.Format(Common.DomainMessages.TaskNotificationDeleted, entity.Title), entity.AssignedUserId);
             }
             catch (Exception ex)
             {
@@ -121,11 +107,7 @@ namespace Jira_ya.Application.Services
             var result = await _taskRepository.AssignTaskAsync(taskId, userId);
             if (result)
             {
-                await _notificationService.NotifyAsync(string.Format(Common.DomainMessages.TaskAssigned, userId), userId);
-                await _messageBusPublisher.PublishAsync(NotificationQueue, new {
-                    UserId = userId,
-                    Message = Common.DomainMessages.TaskNotificationAssigned
-                });
+                await _notificationService.NotifyAsync(Common.DomainMessages.TaskNotificationAssigned, userId);
             }
             return result;
         }
