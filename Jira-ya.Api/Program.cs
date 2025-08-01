@@ -17,6 +17,9 @@ var app = builder.Build();
 
 app.UseMiddleware<Jira_ya.Api.Middleware.ExceptionMiddleware>();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

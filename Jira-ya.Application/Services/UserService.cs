@@ -26,13 +26,13 @@ namespace Jira_ya.Application.Services
 
         public async Task<IEnumerable<UserDto>> GetAllAsync()
         {
-            var users = _userRepository.GetAllAsync();
+            var users = await _userRepository.GetAllAsync();
             return _mapper.Map<IEnumerable<UserDto>>(users);
         }
 
         public async Task<UserDto> GetByIdAsync(Guid id)
         {
-            var u = _userRepository.GetByIdAsync(id);
+            var u = await _userRepository.GetByIdAsync(id);
             if (u == null) return null;
             return _mapper.Map<UserDto>(u);
         }

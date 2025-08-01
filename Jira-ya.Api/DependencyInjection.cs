@@ -14,6 +14,7 @@ namespace Jira_ya.Api
         public static IServiceCollection AddProjectDependencies(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAutoMapper(typeof(Jira_ya.Application.Mapping.TaskProfile).Assembly);
+            services.AddAutoMapper(typeof(Jira_ya.Application.Mapping.UserProfile).Assembly);
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
 
@@ -23,7 +24,6 @@ namespace Jira_ya.Api
 
             services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<AuthService>();
 
             services.AddControllers();
             services.AddFluentValidationAutoValidation();
