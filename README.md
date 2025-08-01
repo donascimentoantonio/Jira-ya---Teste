@@ -15,32 +15,45 @@ Este documento auxilia na configuração e execução do projeto Jira-ya em ambi
 - **Jira-ya.Domain**: Entidades e interfaces de domínio
 - **Jira-ya.Infrastructure**: Persistência (EF Core), notificações, autenticação
 
+
 ### Configuração Inicial
+#### Executando com Docker (recomendado)
+1. **Build e execução**
+   ```sh
+   docker-compose up --build
+   ```
+   A API estará disponível em `http://localhost:8080`.
+
+2. **Banco de dados**
+   O banco SQLite é criado automaticamente como volume temporário no container (`TempDatabase.db`).
+
+#### Executando localmente (sem Docker)
 1. **Restaurar os pacotes NuGet**
    ```sh
    dotnet restore
    ```
-2. **Configurar a Connection String**
-   O projeto já está configurado para usar SQLite. O arquivo de banco será criado automaticamente como `TempDatabase.db` na pasta da API.
-   
-   Arquivo: `Jira-ya.Api/appsettings.json`
-   ```json
-   "ConnectionStrings": {
-     "DefaultConnection": "Data Source=TempDatabase.db"
-   }
-   ```
-3. **Gerar e aplicar as migrations**
-   Execute os comandos abaixo a partir da raiz da solução (onde está o arquivo `.sln`):
+2. **Gerar e aplicar as migrations**
    ```sh
    dotnet tool install --global dotnet-ef # (se necessário)
    dotnet ef migrations add InitialCreate --project Jira-ya.Infrastructure --startup-project Jira-ya.Api
    dotnet ef database update --project Jira-ya.Infrastructure --startup-project Jira-ya.Api
    ```
-4. **Executar a aplicação**
+3. **Executar a aplicação**
    ```sh
    dotnet run --project Jira-ya.Api
    ```
    A API estará disponível em `https://localhost:5001` ou `http://localhost:5000`.
+
+### Testes
+Para rodar os testes unitários e de integração:
+```sh
+dotnet test
+```
+
+### Observações
+* O serviço de notificação é apenas um stub. Implemente conforme a necessidade.
+* Para testes de API, utilize Postman ou Swagger (já habilitado em desenvolvimento).
+* O volume do banco SQLite é temporário no Docker. Para persistência real, altere o mapeamento de volume no `docker-compose.yml`.
 
 ### Observações
 - Se alterar entidades, crie novas migrations e atualize o banco:
