@@ -13,14 +13,12 @@ public class TaskServiceTests : IClassFixture<TaskServiceFixture>
         private Mock<Domain.Interfaces.INotificationService> _notificationMock => _fixture.NotificationMock;
         private Mock<Domain.Interfaces.IUserRepository> _userRepoMock => _fixture.UserRepoMock;
         private Mock<AutoMapper.IMapper> _mapperMock => _fixture.MapperMock;
-        private Mock<Application.MessageBus.IMessageBusPublisher> _messageBusMock => _fixture.MessageBusMock;
         private Application.Services.TaskService _service => _fixture.Service;
 
         public TaskServiceTests(TaskServiceFixture fixture)
         {
             _fixture = fixture;
             _fixture.ResetMocks();
-            _messageBusMock.Setup(m => m.PublishAsync(It.IsAny<string>(), It.IsAny<object>())).Returns(Task.CompletedTask);
         }
 
         [Fact]

@@ -31,7 +31,6 @@ namespace Jira_ya.NotificationWorker
             {
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-                // Apenas exibe a mensagem recebida, igual ao texto enviado pelo controller
                 Console.WriteLine($"[x] Mensagem recebida: {message}");
             };
             channel.BasicConsume(queue: QueueName, autoAck: true, consumer: consumer);

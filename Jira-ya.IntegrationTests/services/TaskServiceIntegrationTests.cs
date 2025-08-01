@@ -1,8 +1,6 @@
 using AutoMapper;
-using Jira_ya.Application.DTOs;
 using Jira_ya.Application.Mapping;
 using Jira_ya.Application.Services;
-using Jira_ya.Domain.Entities;
 using Jira_ya.Infrastructure.Persistence;
 using Jira_ya.UnitTests.TestUtils;
 using Microsoft.Data.Sqlite;
@@ -49,7 +47,7 @@ namespace Jira_ya.IntegrationTests.services
             _context.Users.Add(user);
             _context.SaveChanges();
 
-            var dto = DomainTestDataFactory.CreateValidTaskRequest();
+            var dto = TaskTestDataFactory.CreateValidTaskRequest(assignedUserId: user.Id);
 
             var result = await _service.CreateAsync(dto);
 

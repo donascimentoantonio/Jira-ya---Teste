@@ -10,7 +10,6 @@ namespace Jira_ya.UnitTests.Entities.TaskTests
         public Mock<INotificationService> NotificationMock { get; } = new();
         public Mock<IUserRepository> UserRepoMock { get; } = new();
         public Mock<AutoMapper.IMapper> MapperMock { get; } = new();
-        public Mock<Application.MessageBus.IMessageBusPublisher> MessageBusMock { get; } = new();
         public TaskService Service { get; }
 
         public TaskServiceFixture()
@@ -24,7 +23,6 @@ namespace Jira_ya.UnitTests.Entities.TaskTests
             NotificationMock.Reset();
             UserRepoMock.Reset();
             MapperMock.Reset();
-            MessageBusMock.Reset();
         }
 
         public void Dispose() { }
