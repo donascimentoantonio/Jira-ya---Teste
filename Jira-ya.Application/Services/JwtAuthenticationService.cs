@@ -18,6 +18,8 @@ namespace Jira_ya.Application.Services
         private readonly string _issuer = issuer;
         private readonly string _audience = audience;
 
+        private const int TokenExpirationHours = 1;
+
         public async Task<string?> AuthenticateAsync(string username, string password)
         {
             var user = await _userRepository.GetByUsernameAsync(username);
@@ -30,12 +32,12 @@ namespace Jira_ya.Application.Services
             var key = Encoding.ASCII.GetBytes(_jwtSecret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
+                Subject = new ClaimsIdentity(
+                [
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Name, user.Username)
-                }),
-                Expires = DateTime.UtcNow.AddHours(1),
+                ]),
+                Expires = DateTime.UtcNow.AddHours(TokenExpirationHours),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Issuer = _issuer,
                 Audience = _audience

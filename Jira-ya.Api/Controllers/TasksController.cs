@@ -10,6 +10,10 @@ namespace Jira_ya.Api.Controllers
     [Authorize]
     public class TasksController(ITaskService taskService) : ControllerBase
     {
+        private const string UnauthorizedUserMessage = "Usuário não autenticado ou token inválido.";
+
+        private readonly ITaskService taskService = taskService;
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -35,6 +39,13 @@ namespace Jira_ya.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTaskRequest dto)
         {
+            // Extrai o ID do usuário autenticado do token JWT (NameIdentifier claim)
+
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier || c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+                return Unauthorized(new { error = UnauthorizedUserMessage });
+
+            dto.AssignedUserId = userId;
             var result = await taskService.CreateAsync(dto);
             if (!result.Success)
                 return BadRequest(new { error = result.Error });

@@ -10,7 +10,6 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddProjectDependencies(builder.Configuration);
 
-// JWT Authentication
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
 var app = builder.Build();

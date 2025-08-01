@@ -1,6 +1,5 @@
 using Jira_ya.Application.Common;
 using Jira_ya.Application.DTOs;
-using System.Collections.Generic;
 
 namespace Jira_ya.Application.Services.Interfaces
 {

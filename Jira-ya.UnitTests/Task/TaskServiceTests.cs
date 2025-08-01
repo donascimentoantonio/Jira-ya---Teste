@@ -1,24 +1,26 @@
 using Moq;
 using Jira_ya.UnitTests.TestUtils;
 using Jira_ya.Application.DTOs;
-using Jira_ya.Domain.Interfaces;
-using DomainTask = Jira_ya.Domain.Entities.DomainTask;
+using Jira_ya.Domain.Entities;
 
 namespace Jira_ya.UnitTests.Tasks
 {
-    public class TaskServiceTests : IClassFixture<TaskServiceFixture>
+public class TaskServiceTests : IClassFixture<TaskServiceFixture>
     {
         private readonly TaskServiceFixture _fixture;
-        private Mock<ITaskRepository> _taskRepoMock => _fixture.TaskRepoMock;
-        private Mock<INotificationService> _notificationMock => _fixture.NotificationMock;
-        private Mock<IUserRepository> _userRepoMock => _fixture.UserRepoMock;
+        private Mock<Jira_ya.Domain.Interfaces.ITaskRepository> _taskRepoMock => _fixture.TaskRepoMock;
+        private Mock<Jira_ya.Domain.Interfaces.INotificationService> _notificationMock => _fixture.NotificationMock;
+        private Mock<Jira_ya.Domain.Interfaces.IUserRepository> _userRepoMock => _fixture.UserRepoMock;
         private Mock<AutoMapper.IMapper> _mapperMock => _fixture.MapperMock;
-        private Jira_ya.Application.Services.TaskService _service => _fixture.Service;
+        private Mock<Application.MessageBus.IMessageBusPublisher> _messageBusMock => _fixture.MessageBusMock;
+        private Application.Services.TaskService _service => _fixture.Service;
 
         public TaskServiceTests(TaskServiceFixture fixture)
         {
             _fixture = fixture;
             _fixture.ResetMocks();
+            // Mock PublishAsync para todos os testes
+            _messageBusMock.Setup(m => m.PublishAsync(It.IsAny<string>(), It.IsAny<object>())).Returns(System.Threading.Tasks.Task.CompletedTask);
         }
 
         [Fact]
@@ -31,8 +33,8 @@ namespace Jira_ya.UnitTests.Tasks
             _userRepoMock.Setup(r => r.GetByIdAsync(dto.AssignedUserId)).ReturnsAsync(user);
             _mapperMock.Setup(m => m.Map<DomainTask>(dto)).Returns(task);
             _mapperMock.Setup(m => m.Map<TaskDto>(task)).Returns(taskDto);
-            _taskRepoMock.Setup(r => r.AddAsync(It.IsAny<DomainTask>())).Returns(Task.CompletedTask);
-            _notificationMock.Setup(n => n.NotifyAsync(It.IsAny<string>(), It.IsAny<Guid>())).Returns(Task.CompletedTask);
+            _taskRepoMock.Setup(r => r.AddAsync(It.IsAny<DomainTask>())).Returns(System.Threading.Tasks.Task.CompletedTask);
+            _notificationMock.Setup(n => n.NotifyAsync(It.IsAny<string>(), It.IsAny<Guid>())).Returns(System.Threading.Tasks.Task.CompletedTask);
 
             var result = await _service.CreateAsync(dto);
 
@@ -44,7 +46,7 @@ namespace Jira_ya.UnitTests.Tasks
         public async Task CreateAsync_ReturnsFail_WhenUserNotFound()
         {
             var dto = TaskTestDataFactory.CreateValidTaskRequest();
-            _userRepoMock.Setup(r => r.GetByIdAsync(dto.AssignedUserId)).ReturnsAsync((Jira_ya.Domain.Entities.User)null);
+            _userRepoMock.Setup(r => r.GetByIdAsync(dto.AssignedUserId)).ReturnsAsync((Domain.Entities.User?)null);
 
             var result = await _service.CreateAsync(dto);
 
@@ -70,7 +72,7 @@ namespace Jira_ya.UnitTests.Tasks
         public async Task UpdateAsync_ReturnsFail_WhenTaskNotFound()
         {
             var id = Guid.NewGuid();
-            _taskRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((DomainTask)null);
+            _taskRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((DomainTask?)null);
             var dto = new TaskDto { Id = id, Title = "Task", DueDate = DateTime.Now.AddDays(1), AssignedUserId = Guid.NewGuid() };
 
             var result = await _service.UpdateAsync(id, dto);
@@ -85,8 +87,8 @@ namespace Jira_ya.UnitTests.Tasks
             var id = Guid.NewGuid();
             var task = new DomainTask { Id = id, Title = "Task", DueDate = DateTime.Now.AddDays(1), AssignedUserId = Guid.NewGuid() };
             _taskRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(task);
-            _taskRepoMock.Setup(r => r.DeleteAsync(It.IsAny<Guid>())).Returns(Task.CompletedTask);
-            _notificationMock.Setup(n => n.NotifyAsync(It.IsAny<string>(), It.IsAny<Guid>())).Returns(Task.CompletedTask);
+            _taskRepoMock.Setup(r => r.DeleteAsync(It.IsAny<Guid>())).Returns(System.Threading.Tasks.Task.CompletedTask);
+            _notificationMock.Setup(n => n.NotifyAsync(It.IsAny<string>(), It.IsAny<Guid>())).Returns(System.Threading.Tasks.Task.CompletedTask);
 
             var result = await _service.DeleteAsync(id);
 
@@ -98,7 +100,7 @@ namespace Jira_ya.UnitTests.Tasks
         public async Task DeleteAsync_ReturnsFail_WhenTaskNotFound()
         {
             var id = Guid.NewGuid();
-            _taskRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((DomainTask)null);
+            _taskRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((DomainTask?)null);
 
             var result = await _service.DeleteAsync(id);
 

@@ -9,7 +9,7 @@ namespace Jira_ya.NotificationWorker
     {
 
         private readonly string _hostName;
-        private readonly string _queue = "user-notifications";
+        private const string QueueName = "user-notifications";
 
         public NotificationConsumer(string hostName)
         {
@@ -21,17 +21,20 @@ namespace Jira_ya.NotificationWorker
             var factory = new ConnectionFactory() { HostName = _hostName };
             using var connection = factory.CreateConnection();
             using var channel = connection.CreateModel();
-            channel.QueueDeclare(queue: _queue, durable: false, exclusive: false, autoDelete: false, arguments: null);
+            const bool Durable = false;
+            const bool Exclusive = false;
+            const bool AutoDelete = false;
+            channel.QueueDeclare(queue: QueueName, durable: Durable, exclusive: Exclusive, autoDelete: AutoDelete, arguments: null);
 
             var consumer = new EventingBasicConsumer(channel);
             consumer.Received += (model, ea) =>
             {
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-                var notification = JsonSerializer.Deserialize<NotificationMessage>(message);
-                Console.WriteLine($"[x] Notificação para usuário {notification.UserId}: {notification.Message}");
+                // Apenas exibe a mensagem recebida, igual ao texto enviado pelo controller
+                Console.WriteLine($"[x] Mensagem recebida: {message}");
             };
-            channel.BasicConsume(queue: _queue, autoAck: true, consumer: consumer);
+            channel.BasicConsume(queue: QueueName, autoAck: true, consumer: consumer);
 
             Console.WriteLine("[x] Aguardando notificações. Pressione [enter] para sair.");
             Console.ReadLine();

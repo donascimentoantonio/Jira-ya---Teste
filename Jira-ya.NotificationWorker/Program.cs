@@ -6,7 +6,6 @@ namespace Jira_ya.NotificationWorker
     {
         static void Main(string[] args)
         {
-            // Read RabbitMQ HostName from appsettings.json
             var config = new Microsoft.Extensions.Configuration.ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)

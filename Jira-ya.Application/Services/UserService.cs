@@ -6,18 +6,11 @@ using Jira_ya.Domain.Interfaces;
 
 namespace Jira_ya.Application.Services
 {
-    public class UserService : IUserService
+    public class UserService(IUserRepository userRepository, INotificationService notificationService, AutoMapper.IMapper mapper) : IUserService
     {
-        private readonly IUserRepository _userRepository;
-        private readonly INotificationService _notificationService;
-        private readonly AutoMapper.IMapper _mapper;
-
-        public UserService(IUserRepository userRepository, INotificationService notificationService, AutoMapper.IMapper mapper)
-        {
-            _userRepository = userRepository;
-            _notificationService = notificationService;
-            _mapper = mapper;
-        }
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly INotificationService _notificationService = notificationService;
+        private readonly AutoMapper.IMapper _mapper = mapper;
 
         private Task<User?> GetUserOrNull(Guid id)
         {
@@ -56,7 +49,7 @@ namespace Jira_ya.Application.Services
         public async Task<Result<UserDto>> UpdateAsync(Guid id, CreateUserRequest dto)
         {
             var entity = await GetUserOrNull(id);
-            if (entity == null) return Result<UserDto>.Fail("Usuário não encontrado.");
+            if (entity == null) return Result<UserDto>.Fail(Common.DomainMessages.UserNotFound);
             _mapper.Map(dto, entity);
             try
             {
@@ -74,11 +67,11 @@ namespace Jira_ya.Application.Services
         {
             var entity = await GetUserOrNull(id);
             if (entity == null)
-                return Result<bool>.Fail("Usuário não encontrado.");
+                return Result<bool>.Fail(Common.DomainMessages.UserNotFound);
             try
             {
                 await _userRepository.DeleteAsync(id);
-                await _notificationService.NotifyAsync($"Usuário removido: {entity.Username}", entity.Id);
+                await _notificationService.NotifyAsync(string.Format(Common.DomainMessages.UserRemovedMessage, entity.Username), entity.Id);
                 return Result<bool>.Ok(true);
             }
             catch (Exception ex)
@@ -91,10 +84,10 @@ namespace Jira_ya.Application.Services
         {
 
             if (amount <= 0)
-                return Result<IEnumerable<UserDto>>.Fail("A quantidade de usuários deve ser maior que zero.");
+                return Result<IEnumerable<UserDto>>.Fail(Common.DomainMessages.UserAmountGreaterThanZero);
 
             if (string.IsNullOrWhiteSpace(randomKey))
-                return Result<IEnumerable<UserDto>>.Fail("A chave aleatória não pode ser vazia.");
+                return Result<IEnumerable<UserDto>>.Fail(Common.DomainMessages.RandomUserKeyEmpty);
 
             var users = new List<UserDto>();
             var rand = new Random();
@@ -122,8 +115,8 @@ namespace Jira_ya.Application.Services
             }
             catch (Exception ex)
             {
-                ErrorHandler.HandleException<bool>(ex, "Erro ao criar usuários aleatórios.");
-                return Result<IEnumerable<UserDto>>.Fail("Erro ao criar usuários aleatórios.");
+                ErrorHandler.HandleException<bool>(ex, Common.DomainMessages.RandomUserCreateError);
+                return Result<IEnumerable<UserDto>>.Fail(Common.DomainMessages.RandomUserCreateError);
             }
             return Result<IEnumerable<UserDto>>.Ok(users);
         }

@@ -37,7 +37,8 @@ namespace Jira_ya.IntegrationTests.services
             });
             _mapper = config.CreateMapper();
             var notification = new FakeNotificationService();
-            _service = new TaskService(_taskRepo, notification, _userRepo, _mapper);
+            var messageBus = new FakeMessageBusPublisher();
+            _service = new TaskService(_taskRepo, notification, _userRepo, _mapper, messageBus);
         }
 
         [Fact]
@@ -69,9 +70,13 @@ namespace Jira_ya.IntegrationTests.services
         }
     }
 
-    // Fake notification service para não depender de infraestrutura externa
     public class FakeNotificationService : Jira_ya.Domain.Interfaces.INotificationService
     {
         public Task NotifyAsync(string message, Guid userId) => Task.CompletedTask;
+    }
+
+    public class FakeMessageBusPublisher : Jira_ya.Application.MessageBus.IMessageBusPublisher
+    {
+        public Task PublishAsync(string queue, object message) => Task.CompletedTask;
     }
 }
